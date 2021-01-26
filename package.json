@@ -1,0 +1,114 @@
+{
+  "name": "tag-release",
+  "displayName": "tag-release",
+  "description": "自动打标签",
+  "version": "0.0.2",
+  "icon": "resource/logo.png",
+  "publisher": "YishuJia",
+  "engines": {
+    "vscode": "^1.52.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:release_pre_pord",
+    "onView:release_pord"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "views": {
+      "scm": [
+        {
+          "id": "release_pre_pord",
+          "name": "灰度发布(release)"
+        },
+        {
+          "id": "release_pord",
+          "name": "正式发布(master)"
+        }
+      ]
+    },
+    "commands": [
+      {
+				"command": "release_pre_pord.release",
+				"title": "合并",
+				"icon": {
+					"light": "resource/light/release.svg",
+					"dark": "resource/dark/release.svg"
+				}
+      },
+			{
+				"command": "release_pord.release",
+				"title": "发布",
+				"icon": {
+					"light": "resource/light/release.svg",
+					"dark": "resource/dark/release.svg"
+				}
+			},
+      {
+				"command": "release_pord.refresh",
+				"title": "刷新",
+				"icon": {
+					"light": "resource/light/refresh.svg",
+					"dark": "resource/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "release_pord.edit",
+				"title": "编辑",
+				"icon": {
+					"light": "resource/light/edit.svg",
+					"dark": "resource/dark/edit.svg"
+				}
+			}
+    ],
+    "menus": {
+      "view/title": [
+				{
+					"command": "release_pre_pord.release",
+					"when": "view == release_pre_pord",
+					"group": "navigation"
+        },
+        {
+					"command": "release_pord.refresh",
+					"when": "view == release_pord",
+					"group": "navigation"
+				},
+        {
+					"command": "release_pord.release",
+					"when": "view == release_pord",
+					"group": "navigation"
+				}
+      ],
+      "view/item/context": [
+        {
+					"command": "release_pord.edit",
+					"when": "view == release_pord",
+					"group": "inline"
+				}
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.52.0",
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.0.4",
+    "@types/node": "^12.11.7",
+    "eslint": "^7.15.0",
+    "@typescript-eslint/eslint-plugin": "^4.9.0",
+    "@typescript-eslint/parser": "^4.9.0",
+    "glob": "^7.1.6",
+    "mocha": "^8.1.3",
+    "typescript": "^4.1.2",
+    "vscode-test": "^1.4.1"
+  }
+}
