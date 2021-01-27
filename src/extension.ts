@@ -23,9 +23,10 @@ export async function activate(context: vscode.ExtensionContext) {
   })
 
   vscode.commands.registerCommand('release_pord.release', () => {
-    tagRelease(prodProvider.tag || '', prodProvider.describe || '').then(() => {
-      prodProvider.refresh()
-    })
+    prodProvider.release()
+    // tagRelease(prodProvider.tag || '', prodProvider.describe || '').then(() => {
+    //   prodProvider.refresh()
+    // })
   })
   vscode.commands.registerCommand('release_pord.refresh', () => prodProvider.refresh())
   vscode.commands.registerCommand('release_pord.edit', offset => prodProvider.edit(offset))

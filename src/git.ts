@@ -13,6 +13,7 @@ export async function getPordData(customVersion?: string | undefined, customDesc
 
   // 同步
   await gitCommand('git pull origin release:release')
+  console.log('正在同步release')
 
   // 判断是否有新提交
   let { stdout: gitDescribe } = await gitCommand('git describe origin/release')
@@ -40,11 +41,13 @@ export async function getPordData(customVersion?: string | undefined, customDesc
   } else if (commitMsgData.stderr) {
     tagDescribe = '没有新增和修复'
   } else {
+    console.log(commitMsgData.stdout.split(/\r?\n/))
+    console.log(commitMsgData.stdout.split(/\r?\n/).filter(i => /^(feat:|fix:)/.test(i)))
     tagDescribe = commitMsgData.stdout
       .split(/\r?\n/)
       .filter(i => /^(feat:|fix:)/.test(i))
       .map(i => i.replace(/^feat:/, '【新增】').replace(/^fix:/, '【修复】'))
-      .join('；\n')
+      .join('；')
   }
 
   const dataListPro = new DataList([
@@ -58,15 +61,12 @@ export async function getPordData(customVersion?: string | undefined, customDesc
       id: 'describe'
     }
   ])
+  console.log(tagDescribe)
   return dataListPro
 }
 
 // 同步 release 分支
 export async function tagRelease(tag: string, describe: string) {
-  if (!tag || !describe) {
-    vscode.window.showErrorMessage('无法提交：缺少信息或无可提交内容')
-    return
-  }
   try {
     await gitCommand('git pull origin release:master')
     await gitCommand('git push origin master:master')
@@ -93,6 +93,7 @@ export async function tagRelease(tag: string, describe: string) {
 
 // 合并 develop 代码到 release
 export async function mergeDevIntoRelease() {
+  console.log('正在合并 develop 代码到 release')
   await gitCommand('git pull origin develop:release')
   await gitCommand('git push origin release:release')
 }

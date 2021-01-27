@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
-import { getPordData } from './git'
+import { getPordData, tagRelease } from './git'
 
 
 export class DataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
@@ -29,13 +29,19 @@ export class ProdDataProvider extends DataProvider {
 
   constructor(dataProd: DataList) {
     super(dataProd)
-    this.tag = dataProd.treeList[0]?.label?.toString()
-    this.describe = dataProd.treeList[1]?.label?.toString()
+    this.update()
   }
 
-  async refresh() {
-    this.dataList = await getPordData(this.tag, this.describe)
+  async refresh(tag?: string, describe?: string) {
+    this.dataList = await getPordData(tag, describe)
+    this.update()
     this._onDidChangeTreeData.fire()
+  }
+
+  update() {
+    const data = this.dataList
+    this.tag = data.treeList[0]?.label?.toString()
+    this.describe = data.treeList[1]?.label?.toString()
   }
 
   edit(offset: vscode.TreeItem): void {
@@ -43,15 +49,28 @@ export class ProdDataProvider extends DataProvider {
       value: offset.label?.toString(),
       placeHolder: '请输入'
     }).then(value => {
+      let tag = this.tag
+      let describe = this.describe
       if (offset.id === 'tag') {
-        this.tag = value ?? this.tag
+        tag = value ?? this.tag
+      }
+      if (offset.id === 'describe') {
+        describe = value ?? this.describe
       }
 
-      if (offset.id === 'describe') {
-        this.describe = value ?? this.describe
+      if (this.describe !== describe || this.tag !== tag) {
+        this.refresh(tag, describe)
       }
-      this.refresh()
     })
+  }
+
+  async release() {
+    if (this.tag && this.describe) {
+      await tagRelease(this.tag, this.describe)
+      this.refresh()
+    } else {
+      vscode.window.showErrorMessage('无法提交：缺少信息或无可提交内容')
+    }
   }
 }
 
