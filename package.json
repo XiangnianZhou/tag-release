@@ -2,7 +2,7 @@
   "name": "tag-release",
   "displayName": "tag-release",
   "description": "自动打标签",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "icon": "resource/logo.png",
   "repository": {
     "type": "git",
