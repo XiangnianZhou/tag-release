@@ -10,9 +10,8 @@ export async function getPordData(customVersion?: string | undefined, customDesc
   const date = now.getDate().toString().padStart(2, '0')
 
   const version = customVersion || `v${year}${month}${date}`
-
   // 同步
-  await gitCommand('git pull origin release:release')
+  await gitCommand('git fetch origin release:release')
   console.log('正在同步release')
 
   // 判断是否有新提交
@@ -41,8 +40,6 @@ export async function getPordData(customVersion?: string | undefined, customDesc
   } else if (commitMsgData.stderr) {
     tagDescribe = '没有新增和修复'
   } else {
-    console.log(commitMsgData.stdout.split(/\r?\n/))
-    console.log(commitMsgData.stdout.split(/\r?\n/).filter(i => /^(feat:|fix:)/.test(i)))
     tagDescribe = commitMsgData.stdout
       .split(/\r?\n/)
       .filter(i => /^(feat:|fix:)/.test(i))
@@ -61,24 +58,17 @@ export async function getPordData(customVersion?: string | undefined, customDesc
       id: 'describe'
     }
   ])
-  console.log(tagDescribe)
   return dataListPro
 }
 
 // 同步 release 分支
 export async function tagRelease(tag: string, describe: string) {
   try {
-    await gitCommand('git pull origin release:master')
+    await gitCommand('git fetch origin release:master')
     await gitCommand('git push origin master:master')
   } catch (e) {
     vscode.window.showErrorMessage('无法拉取远程数据，请手动操作')
     return
-  }
-
-  try {
-    await gitCommand('git pull --tag -f')
-  } catch (e) {
-    console.error('无法拉取远程tag记录')
   }
 
   try {
@@ -94,7 +84,7 @@ export async function tagRelease(tag: string, describe: string) {
 // 合并 develop 代码到 release
 export async function mergeDevIntoRelease() {
   console.log('正在合并 develop 代码到 release')
-  await gitCommand('git pull origin develop:release')
+  await gitCommand('git fetch origin develop:release')
   await gitCommand('git push origin release:release')
 }
 
