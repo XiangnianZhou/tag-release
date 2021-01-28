@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
+import * as vscode from 'vscode'
 import { DataList } from './dataProvider'
-import * as cp from 'child_process';
+import * as cp from 'child_process'
 
 export async function getPordData(customVersion?: string | undefined, customDesc?: string | undefined): Promise<DataList> {
   // 生成默认版本号

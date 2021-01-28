@@ -1,5 +1,4 @@
-import { sync } from 'glob';
-import * as vscode from 'vscode';
+import * as vscode from 'vscode'
 import { DataProvider, DataList, ProdDataProvider } from './dataProvider'
 import { getPordData, mergeDevIntoRelease, tagRelease } from './git'
 
