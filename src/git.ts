@@ -24,13 +24,17 @@ export async function getPordData(customVersion?: string | undefined, customDesc
   // 查看最新的Tag
   let { stdout: lastTag } = await gitCommand('git describe origin/master --tags --abbrev=0')
   lastTag = lastTag.trim()
-  const tagRepeat = version === lastTag // 是否和最新的标记重名
+  // const tagRepeat = version === lastTag // 是否和最新的标记重名
+  const repeatReg = new RegExp(`${version}(-(\\d+))?`)
+  const repeatMatch = lastTag.match(repeatReg)
+  const isTagRepeat = !!repeatMatch
+  const subVersion = repeatMatch && repeatMatch[2] ? `-${repeatMatch[2] + 1}` : ''
 
   // 对于重复的tag，要找到上上个tag
-  if (tagRepeat) {
-    const { stdout: tags } = await gitCommand('git tag -l --sort=-v:refname')
-    lastTag = tags.split(/\r?\n/)[1]
-  }
+  // if (isTagRepeat) {
+  //   const { stdout: tags } = await gitCommand('git tag -l --sort=-v:refname')
+  //   lastTag = tags.split(/\r?\n/)[1]
+  // }
 
   // 获取commit msg 信息
   const commitMsgData = await gitCommand(`git log --pretty="%s" ${lastTag}..origin/release`)
@@ -42,16 +46,16 @@ export async function getPordData(customVersion?: string | undefined, customDesc
   } else {
     tagDescribe = commitMsgData.stdout
       .split(/\r?\n/)
-      .filter(i => /^(feat:|fix:)/.test(i))
-      .map(i => i.replace(/^feat:/, '【新增】').replace(/^fix:/, '【修复】'))
+      .filter(i => /^(feat|fix)[:：]/.test(i))
+      .map(i => i.replace(/^feat[:：]/, '【新增】').replace(/^fix[:：]/, '【修复】'))
       .join('；')
   }
 
   const dataListPro = new DataList([
     {
-      label: version,
+      label: version + subVersion,
       id: 'tag',
-      description: tagRepeat ? '已标记' : ''
+      description: isTagRepeat ? '已递增' : ''
     },
     {
       label: tagDescribe,
