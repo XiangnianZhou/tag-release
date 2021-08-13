@@ -28,7 +28,8 @@ export async function getPordData(customVersion?: string | undefined, customDesc
   const repeatReg = new RegExp(`${version}(-(\\d+))?`)
   const repeatMatch = lastTag.match(repeatReg)
   const isTagRepeat = !!repeatMatch
-  const subVersion = repeatMatch && repeatMatch[2] ? `-${repeatMatch[2] + 1}` : ''
+  const subVersion = repeatMatch && repeatMatch[2] ?
+     `-${+repeatMatch[2] + 1}` : (isTagRepeat ? '-1' : '')
 
   // 对于重复的tag，要找到上上个tag
   // if (isTagRepeat) {
@@ -71,17 +72,17 @@ export async function tagRelease(tag: string, describe: string) {
     await gitCommand('git fetch origin release:master')
     await gitCommand('git push origin master:master')
   } catch (e) {
-    vscode.window.showErrorMessage('无法拉取远程数据，请手动操作')
+    vscode.window.showErrorMessage(`无法拉取远程数据，请手动操作:${e.message}`)
     return
   }
 
   try {
     // 打tag
     await gitCommand(`git tag ${tag} master -f -m "${describe}"`)
-    await gitCommand('git push --tag -f')
+    await gitCommand(`git push origin tag ${tag}`)
     vscode.window.showInformationMessage('发布成功')
   } catch (e) {
-    vscode.window.showErrorMessage('打Tag失败，请手动操作')
+    vscode.window.showErrorMessage(`打Tag失败，请手动操作: ${e.message}`)
   }
 }
 
